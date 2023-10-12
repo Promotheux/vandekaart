@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>GTA V MAP</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico">
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="">
+      <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+   </head>
+   <style>
+      body {
+         overflow: hidden;
+         padding:0;
+         margin:0;
+      }
+       #map { 
+         position:absolute;
+         height: 100vh; 
+         width: 100vw;
+      }
+   </style>
+   <body>
+      <div id="map"/>
+
+      <script>
+        const center_x = 117.3;
+        const center_y = 172.8;
+        const scale_x = 0.02072;
+        const scale_y = 0.0205;
+
+        CUSTOM_CRS = L.extend({}, L.CRS.Simple, {
+            projection: L.Projection.LonLat,
+            scale: function(zoom) {
+        
+                return Math.pow(2, zoom);
+            },
+            zoom: function(sc) {
+        
+                return Math.log(sc) / 0.6931471805599453;
+            },
+            distance: function(pos1, pos2) {
+                var x_difference = pos2.lng - pos1.lng;
+                var y_difference = pos2.lat - pos1.lat;
+                return Math.sqrt(x_difference * x_difference + y_difference * y_difference);
+            },
+            transformation: new L.Transformation(scale_x, center_x, -scale_y, center_y),
+            infinite: true
+        });
+        
+        var SateliteStyle = L.tileLayer('mapStyles/styleSatelite/{z}/{x}/{y}.jpg', {minZoom: 0,maxZoom: 8,noWrap: true,continuousWorld: false,attribution: 'Online map GTA V',id: 'SateliteStyle map',}),
+	        AtlasStyle	= L.tileLayer('mapStyles/styleAtlas/{z}/{x}/{y}.jpg', {minZoom: 0,maxZoom: 5,noWrap: true,continuousWorld: false,attribution: 'Online map GTA V',id: 'styleAtlas map',}),
+	        GridStyle	= L.tileLayer('mapStyles/styleGrid/{z}/{x}/{y}.png', {minZoom: 0,maxZoom: 5,noWrap: true,continuousWorld: false,attribution: 'Online map GTA V',id: 'styleGrid map',});
+  
+        var map = L.map('map', {
+            crs: CUSTOM_CRS,
+            minZoom: 1,
+            maxZoom: 5,
+            Zoom: 5,
+            maxNativeZoom: 5,
+            preferCanvas: true,
+            layers: [AtlasStyle],
+            center: [0, 0],
+            zoom: 3,
+        }).setView([117.3, 172.8], 3);
+
+        var lastMarker = null;
+        map.on('dblclick', function (event) {
+            // Get the clicked coordinates
+            var latlng = event.latlng;
+        
+            // Remove the last added marker if it exists
+            if (lastMarker) {
+                map.removeLayer(lastMarker);
+            }
+        
+            // Create a marker at the clicked coordinates
+            var icon = L.icon({
+                iconUrl: `/blips/1.png`,
+                iconSize:     [20, 20],
+                iconAnchor:   [20, 20], 
+                popupAnchor:  [-10, -27]
+            });
+
+            var marker = L.marker(latlng, {
+                icon: icon,
+            }).addTo(map);
+        
+            // Add the marker to the map
+            var popupContent = document.createElement('div');
+            popupContent.innerHTML = `Coordinates: [${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}]<br>
+                <button class="setTypeButton" data-type="ATM">ATM</button>
+                <button class="setTypeButton" data-type="Parking">Parking</button>
+                <button class="setTypeButton" data-type="Container">Container</button>
+                <button class="setTypeButton" data-type="Electricity">Electricity</button>`;
+            
+            marker.bindPopup(popupContent).openPopup();
+
+            console.log(popupContent);
+            var typeButtons = popupContent.querySelectorAll('.setTypeButton');
+
+            typeButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var newType = button.getAttribute('data-type');
+                    if (newType) {
+                        // Send the type, lat, lng, and count to the server
+                        fetch('/add-location', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                Type: newType,
+                                X: latlng.lat,
+                                Y: latlng.lng,
+                                Count: 1
+                            })
+                        });
+    
+                        marker.setPopupContent(`${newType} is opgeslagen!`);
+                    }
+                });
+            });
+
+            lastMarker = marker;
+        });
+
+        var Icons = {
+            "Container":  L.layerGroup().addTo(map),
+            "Electricity": L.layerGroup().addTo(map),
+            "Parking": L.layerGroup().addTo(map),
+            "ATM": L.layerGroup().addTo(map),
+        };
+        
+         // Load locations from locations.json using fetch
+        fetch('/get-locations')
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(location => {
+                // Define the icon based on the "Type" field
+                var icon_type = location.Type.toLowerCase()
+                var icon = L.icon({
+                    iconUrl: `/blips/${icon_type}.png`,
+                    iconSize:     [20, 20],
+                    iconAnchor:   [20, 20], 
+                    popupAnchor:  [-10, -27]
+                });
+
+                var marker = L.marker([location.X, location.Y], { icon: icon });
+                // Create a marker with the custom icon
+                if(data.Count > 1){
+                    marker  = marker.bindPopup(`${data.Count}`);
+                }
+                var type = location.Type;
+                marker.addTo(Icons[type]);
+            });
+        })
+        .catch(error => console.error('Error loading locations:', error));
+        var layersControl = L.control.layers({ "Satelite": SateliteStyle,"Atlas": AtlasStyle,"Grid":GridStyle}, Icons).addTo(map);
+
+    </script>
+   </body>
+</html>
