@@ -92,7 +92,8 @@
                 <button class="setTypeButton" data-type="ATM">ATM</button>
                 <button class="setTypeButton" data-type="Parking">Parking</button>
                 <button class="setTypeButton" data-type="Container">Container</button>
-                <button class="setTypeButton" data-type="Electricity">Electricity</button>`;
+                <button class="setTypeButton" data-type="Electricity">Electricity</button>
+                <button class="setTypeButton" data-type="Illegal">Illegal</button>`;
             
             marker.bindPopup(popupContent).openPopup();
 
@@ -130,6 +131,7 @@
             "Electricity": L.layerGroup().addTo(map),
             "Parking": L.layerGroup().addTo(map),
             "ATM": L.layerGroup().addTo(map),
+            "Illegal": L.layerGroup().addTo(map),
         };
         
          // Load locations from locations.json using fetch
@@ -162,7 +164,6 @@
                             },
                         });
                         marker.remove();
-
                     }
                 })
             });
