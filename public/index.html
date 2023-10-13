@@ -7,7 +7,7 @@
       <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico">
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="">
       <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
-   </head>
+    </head>
    <style>
       body {
          overflow: hidden;
@@ -48,20 +48,25 @@
             infinite: true
         });
         
-        var SateliteStyle = L.tileLayer('mapStyles/styleSatelite/{z}/{x}/{y}.jpg', {minZoom: 0,maxZoom: 8,noWrap: true,continuousWorld: false,attribution: 'Online map GTA V',id: 'SateliteStyle map',}),
-            AtlasStyle	= L.tileLayer('mapStyles/styleAtlas/{z}/{x}/{y}.jpg', {minZoom: 0,maxZoom: 5,noWrap: true,continuousWorld: false,attribution: 'Online map GTA V',id: 'styleAtlas map',}),
-	        GridStyle	= L.tileLayer('mapStyles/styleGrid/{z}/{x}/{y}.png', {minZoom: 0,maxZoom: 5,noWrap: true,continuousWorld: false,attribution: 'Online map GTA V',id: 'styleGrid map',});
-  
+        var AtlasStyle	= L.tileLayer('mapStyle/AtlasStyle/{z}/{x}/{y}.png', 
+            {
+                minZoom: 0, 
+                maxZoom: 10,
+                noWrap: true,
+                continuousWorld: false,
+                attribution: 'Van De Kaart',
+                id: 'styleAtlas map',
+            }
+        );
         var map = L.map('map', {
             crs: CUSTOM_CRS,
-            minZoom: 1,
-            maxZoom: 5,
-            Zoom: 3,
-            maxNativeZoom: 5,
+            minZoom: 3,
+            maxZoom: 10,
+            Zoom: 0,
+            maxNativeZoom: 10,
             preferCanvas: true,
             layers: [AtlasStyle],
             center: [0, 0],
-            zoom: 3,
         }).setView([117.3, 172.8], 3);
 
         var lastMarker = null;
@@ -169,7 +174,7 @@
             });
         })
         .catch(error => console.error('Error loading locations:', error));
-        var layersControl = L.control.layers({ "Satelite": SateliteStyle,"Atlas": AtlasStyle, "Grid":GridStyle}, Icons).addTo(map);
+        var layersControl = L.control.layers({}, Icons).addTo(map);
     
     </script>
    </body>
