@@ -153,11 +153,23 @@
                 }
                 var type = location.Type;
                 marker.addTo(Icons[type]);
+                marker.addEventListener('click', function (e) {
+                    if (confirm('Remove marker?')){
+                        fetch(`/remove-location/${location.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                        });
+                        marker.remove();
+
+                    }
+                })
             });
         })
         .catch(error => console.error('Error loading locations:', error));
         var layersControl = L.control.layers({ "Satelite": SateliteStyle,"Atlas": AtlasStyle, "Grid":GridStyle}, Icons).addTo(map);
-
+    
     </script>
    </body>
 </html>
