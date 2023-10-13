@@ -48,7 +48,7 @@
             infinite: true
         });
         
-        var AtlasStyle	= L.tileLayer('mapStyle/AtlasStyle/{z}/{x}/{y}.png', 
+        var AtlasStyle	= L.tileLayer('mapStyles/AtlasStyle/{z}/{x}/{y}.png', 
             {
                 minZoom: 0, 
                 maxZoom: 10,
@@ -58,6 +58,12 @@
                 id: 'styleAtlas map',
             }
         );
+
+        if (AtlasStyle.on('tileerror', function(error, tile) {
+            console.log(error, tile);
+            error.tile.src = "mapStyles/AtlasStyle/empty.png";
+        }));
+
         var map = L.map('map', {
             crs: CUSTOM_CRS,
             minZoom: 3,
@@ -67,7 +73,8 @@
             preferCanvas: true,
             layers: [AtlasStyle],
             center: [0, 0],
-        }).setView([117.3, 172.8], 3);
+            backgroundColor: "#7BAECE" // Use your desired color code
+        }).setView([3942.98780, -3652.26834], 4);
 
         var lastMarker = null;
         map.on('dblclick', function (event) {
