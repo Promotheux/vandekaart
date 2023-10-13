@@ -49,14 +49,14 @@
         });
         
         var SateliteStyle = L.tileLayer('mapStyles/styleSatelite/{z}/{x}/{y}.jpg', {minZoom: 0,maxZoom: 8,noWrap: true,continuousWorld: false,attribution: 'Online map GTA V',id: 'SateliteStyle map',}),
-	        AtlasStyle	= L.tileLayer('mapStyles/styleAtlas/{z}/{x}/{y}.jpg', {minZoom: 0,maxZoom: 5,noWrap: true,continuousWorld: false,attribution: 'Online map GTA V',id: 'styleAtlas map',}),
+            AtlasStyle	= L.tileLayer('mapStyles/styleAtlas/{z}/{x}/{y}.jpg', {minZoom: 0,maxZoom: 5,noWrap: true,continuousWorld: false,attribution: 'Online map GTA V',id: 'styleAtlas map',}),
 	        GridStyle	= L.tileLayer('mapStyles/styleGrid/{z}/{x}/{y}.png', {minZoom: 0,maxZoom: 5,noWrap: true,continuousWorld: false,attribution: 'Online map GTA V',id: 'styleGrid map',});
   
         var map = L.map('map', {
             crs: CUSTOM_CRS,
             minZoom: 1,
             maxZoom: 5,
-            Zoom: 5,
+            Zoom: 3,
             maxNativeZoom: 5,
             preferCanvas: true,
             layers: [AtlasStyle],
@@ -156,7 +156,7 @@
             });
         })
         .catch(error => console.error('Error loading locations:', error));
-        var layersControl = L.control.layers({ "Satelite": SateliteStyle,"Atlas": AtlasStyle,"Grid":GridStyle}, Icons).addTo(map);
+        var layersControl = L.control.layers({ "Satelite": SateliteStyle,"Atlas": AtlasStyle, "Grid":GridStyle}, Icons).addTo(map);
 
     </script>
    </body>
